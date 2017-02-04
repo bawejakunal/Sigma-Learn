@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>New York Times Articles</title>
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="text-align: center;">
+<h1>SigmaLearn</h1> <h3>A new way to learn!</h3><hr>
+<img src="/Users/jamshed/Desktop/NYTDevLogo.svg" width="300" height="100"></img>
+<h2>Relevant & Latest New York Times Articles</h2>
+<div class="well" id="nydata" name="nydata"></div>
+<script type="text/javascript">
+  function getNYdata(search_term){
+    var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+    url += '?' + $.param({
+      'api-key': "f1e914032727458cb6aa874e1bb07180",
+      'q': search_term,
+      'begin_date': "20160601",
+      'sort': "newest",
+      'fl': "web_url,headline",
+      'page': 0
+    });
+    $.ajax({
+      url: url,
+      method: 'GET',
+    }).done(function(result) {
+      var articles = result.response.docs;
+      console.log(articles);
+      var numArticles = result.response.docs.length; 
+      console.log(numArticles);
+      var htmlContent = "";
+      for(var i=0;i<numArticles;i++){
+        console.log(articles[i].headline.print_headline);
+        console.log(articles[i].web_url);
+        htmlContent+='<a href="'+articles[i].web_url+'">'+articles[i].headline.print_headline+'</a><br><hr>';
+      }
+      document.getElementById("nydata").innerHTML = htmlContent;
+    }).fail(function(err) {
+      throw err;
+    });
+  }
+  var urlParameter = window.location.href.split("=")[1];
+  var urlParameter2 = urlParameter.replace("%20"," ");
+  console.log(urlParameter2);
+  $(document).ready(getNYdata(urlParameter2));
+</script>
+
+</body>
+</html>
