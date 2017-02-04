@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome</title>
+<head>
+ <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="margin: 10px;">
+<header style="text-align: center;">
+            <h1>SigmaLearn</h1> <h3>A new way to learn!</h3><hr>
+</header>
+
+
+<div class="well col-md-8" style="margin: 10px;">
+    <h2>Notes</h2>
+    <!--<form action="/devFest11/getConcept" method="get" > -->
+        <p name="text" id="text" class="text-justify">
+            {% print orgText %}
+        </p>
+    <!--</form> -->
+    <button id="notesDownload" name="notesDownload" type="button" class="btn btn-success">Download</button>
+</div>
+
+
+<div name="summary" id="summary" style="background-color: #eee;margin: 10px;" class="well col-md-8">
+    <h2>Summary</h2>
+    {% set len = summaryList|length %}
+    <ul class="text-justify">
+    {% for n in range(len) %}
+        <li>{% print summaryList[n] %}</li>
+    {% endfor %}
+    </ul>
+    <button id="summaryDownload" name="summaryDownload" type="button" class="btn btn-success">Download</button>
+</div>
+
+
+<div style="display: block;">
+    <button type="submit" class="btn btn-warning" id="getNews">Get Relevant News</button> 
+    <button type="submit" class="btn btn-info" id="getVideos" name="getVideos">Get Relevant Videos</button> 
+</div>
+
+<div id="div1" class="well" style="display: none; background-color: #337ab7;
+    padding: 10px;
+    text-align: justify;
+    /* margin-left: 100px; */
+    margin-top: 10%;
+    color: white;
+    margin-left: 68%;">
+
+</div>
+
+
+<div id="results">
+</div>
+
+<div id="hiddenConcept" style="display: none;">
+    {% print concept %}
+</div>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script type=text/javascript>
+  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+<script>
+    $(function() {
+        $("#getNews").click(function(e) {
+            e.preventDefault();
+            var con = $("#hiddenConcept").text();
+            $(location).attr('href', 'http://948f80dc.ngrok.io/nytapi.html?q='+con);
+        });
+
+        $("#getVideos").click(function(e) {
+            e.preventDefault();
+            var con = $("#hiddenConcept").text();
+            $(location).attr('href', 'http://9221a3eb.ngrok.io/youtube/youtube/?q='+con);
+        });
+
+    });
+
+</script>
+
+<script>
+$( "p[name='text'], div[name='summary']" ).dblclick(function() {
+    // alert( "Hello World!" );
+    var startIndex = window.getSelection().getRangeAt(0).startOffset;
+    var endIndex = window.getSelection().getRangeAt(0).endOffset;
+    var slicedText = $(this).text().slice(startIndex, endIndex);
+    var sendStr = "word="+slicedText;
+    // alert(slicedText);
+
+    $.getJSON($SCRIPT_ROOT + '/devFest11/meaning', {
+        word: slicedText
+      }, function(data) {
+        console.log(data);
+        $('#div1').show();
+        $("#div1").html(data['meanings']);
+      });
+});
+</script>
+
+
+<script src="https://apis.google.com/js/client.js?onload=init"></script>
+<script type="text/javascript">
+  function downloadInnerHtml(filename, elId, mimeType) {
+    var elHtml = document.getElementById(elId).innerHTML;
+    var link = document.createElement('a');
+    mimeType = mimeType || 'text/plain';
+
+    link.setAttribute('download', filename);
+    link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(elHtml));
+    link.click();
+}
+
+var sfileName =  'summary.html'; // You can use the .txt extension if you want
+var nfileName =  'notes.html'; // You can use the .txt extension if you want
+
+$('#summaryDownload').click(function(){
+    downloadInnerHtml(sfileName, 'summary','text');
+});
+
+$('#notesDownload').click(function(){
+    downloadInnerHtml(nfileName, 'text','text');
+});
+</script>
+</body>
+</html>
+
+<!--
+<script>
+    function tplawesome(e,t){res=e;for(var n=0;n<t.length;n++){res=res.replace(/\{\{(.*?)\}\}/g,function(e,r){return t[n][r]})}return res}
+
+    $(function() {
+        $("#getVideos").click(function(e) {
+           con = $("#hiddenConcept").text();
+           console.log(con);
+           e.preventDefault();
+
+           //one year date
+           var date = new Date();
+           date.setFullYear( date.getFullYear() - 1 );
+           console.log(date.toISOString());
+           // prepare the request
+           var request = gapi.client.youtube.search.list({
+                part: "snippet",
+                type: "video",
+                q: encodeURIComponent(con).replace(/%20/g, "+"),
+                maxResults: 3,
+                order: "relevance",
+                publishedAfter: date.toISOString()
+           });
+           // execute the request
+           request.execute(function(response) {
+              var results = response.result;
+              $("#results").html("");
+              $.each(results.items, function(index, item) {
+                $.get("tpl/item.html", function(data) {
+                    $("#results").append(tplawesome(data, [{"title":item.snippet.title, "videoid":item.id.videoId}]));
+                });
+              });
+              resetVideoHeight();
+           });
+        });
+
+        $(window).on("resize", resetVideoHeight);
+    });
+
+    function resetVideoHeight() {
+        $(".video").css("height", $("#results").width() * 9/16);
+    }
+
+    function init() {
+        gapi.client.setApiKey("AIzaSyCst8PU0qL-KB7C1fZ9ZeyUihtgsH03-es");
+        gapi.client.load("youtube", "v3", function() {
+            console.log("READY GAPI");
+        });
+    }
+</script>
+
+<script>
+$( "p[name='text'], div[name='summary']" ).dblclick(function() {
+    alert( "Hello World!" );
+    var startIndex = window.getSelection().getRangeAt(0).startOffset;
+    var endIndex = window.getSelection().getRangeAt(0).endOffset;
+    var slicedText = $(this).text().slice(startIndex, endIndex);
+    var sendStr = "word="+slicedText;
+    alert(slicedText);
+
+    $.getJSON($SCRIPT_ROOT + '/devFest11/meaning', {
+        word: slicedText
+      }, function(data) {
+        console.log(data);
+        $("#div1").html(data['meanings']);
+      });
+});
+</script>
+
+        $("#div1").html(data);
+/*
+    $.ajax({
+        url: "/devFest11/meaning",
+        data: sendStr,
+        success: function(result){
+            $("#div1").html(result);
+        }
+    });
+    */
+-->
