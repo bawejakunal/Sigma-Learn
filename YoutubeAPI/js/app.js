@@ -13,7 +13,7 @@ function getParameterByName(name, url) {
 
 function init() {
 	console.log("inside init");
-    gapi.client.setApiKey("AIzaSyCst8PU0qL-KB7C1fZ9ZeyUihtgsH03-es");
+    gapi.client.setApiKey("YOUR_API_KEY");
     gapi.client.load("youtube", "v3", function() {
         console.log("READY GAPI");
         var query = getParameterByName("q");
