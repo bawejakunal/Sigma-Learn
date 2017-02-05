@@ -37,7 +37,7 @@ def getConcept():
     text = textToGetContext
     #text = request.args.get['']
     print text
-    client = textapi.Client("c1b78c7b", "8676a4a9b6d77080bf84f511a7665592")
+    client = textapi.Client("YOUR_AUTH_DETAIL", "YOUR_AUTH_DETAIL")
 
     concepts = client.Concepts({"text": text})
     concept = []
@@ -70,7 +70,7 @@ def getSummary():
     if(size == 0):
         size = 2
     #print (size)
-    client = textapi.Client("c1b78c7b", "8676a4a9b6d77080bf84f511a7665592")
+    client = textapi.Client("XYZ", "XYZ_ABC_DEF")
     summary = client.Summarize({'title': title, 'text': text, 'sentences_number': size})
     res = []
     for sentence in summary['sentences']:
@@ -97,7 +97,7 @@ def meaning():
     print word
     url = 'https://wordsapiv1.p.mashape.com/words/' + word + '/definitions'
     response = requests.get(url, headers={
-        "X-Mashape-Key": "zCJin20Cekmshjk93TynaAd80oO5p1y2Vm4jsnymJNxBHc9SZQ",
+        "X-Mashape-Key": "AUTH_DETAILS",
         "Accept": "application/json"
     })
     response = response.json()
